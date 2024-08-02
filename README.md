@@ -4,7 +4,7 @@
 This repository will teach you how to implement simple tests using XUnit
 
 
-## Package versions
+## Framework versions
 
 .Net: 8.0
 <br/>

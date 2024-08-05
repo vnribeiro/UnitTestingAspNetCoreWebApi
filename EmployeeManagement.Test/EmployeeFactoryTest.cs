@@ -5,6 +5,9 @@ namespace EmployeeManagement.Test
 {
     public class EmployeeFactoryTest
     {
+        /// <summary>
+        /// Salary must be 2500 for internal employees.
+        /// </summary>
         [Fact]
         public void CreateEmployee_ConstructInternalEmployee_SalaryMustBe2500()
         {

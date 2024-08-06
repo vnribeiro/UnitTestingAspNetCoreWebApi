@@ -3,20 +3,39 @@ using EmployeeManagement.DataAccess.Entities;
 
 namespace EmployeeManagement.Test
 {
-    public class EmployeeFactoryTest
+    public class EmployeeFactoryTest : IDisposable
     {
+        private readonly EmployeeFactory _employeeFactory;
+
+        /// <summary>
+        /// Context using the constructor and dispose approach.
+        /// </summary>
+        public EmployeeFactoryTest()
+        {
+            _employeeFactory = new EmployeeFactory();
+        }
+
+        /// <summary>
+        /// You need only use the dispose method if you have to clean up resources.
+        /// </summary>
+        public void Dispose()
+        {
+            // Clean up the setup code, if required.
+        }
+
         /// <summary>
         /// Salary must be 2500 for internal employees.
+        /// This test is skipped for demo reasons.
         /// </summary>
-        [Fact]
+        [Fact(Skip = "Skipping this one for demo reasons")]
+        [Trait("Category", "EmployeeFactory_CreateEmployee_Salary")]
         public void CreateEmployee_ConstructInternalEmployee_SalaryMustBe2500()
         {
             //Arrange
-            var employeeFactory = new EmployeeFactory();
 
             //Act
-            var employee = (InternalEmployee) 
-                employeeFactory.CreateEmployee("John", "Doe");
+            var employee = (InternalEmployee)
+                _employeeFactory.CreateEmployee("John", "Doe");
 
             //assert
             Assert.Equal(2500, employee.Salary);
@@ -26,14 +45,14 @@ namespace EmployeeManagement.Test
         /// Salary must be between 2500 and 3500 for internal employees.
         /// </summary>
         [Fact]
+        [Trait("Category", "EmployeeFactory_CreateEmployee_Salary")]
         public void CreateEmployee_ConstructInternalEmployee_SalaryMustBeBetween2500And3500()
         {
             //Arrange
-            var employeeFactory = new EmployeeFactory();
 
             //Act
             var employee = (InternalEmployee)
-                employeeFactory.CreateEmployee("John", "Doe");
+                _employeeFactory.CreateEmployee("John", "Doe");
 
             //assert
             Assert.True(employee.Salary is >= 2500 and <= 3500, "Salary not in acceptable range");
@@ -43,14 +62,14 @@ namespace EmployeeManagement.Test
         /// Salary must be between 2500 and 3500 for internal employees (Alternative).
         /// </summary>
         [Fact]
+        [Trait("Category", "EmployeeFactory_CreateEmployee_Salary")]
         public void CreateEmployee_ConstructInternalEmployee_SalaryMustBeBetween2500And3500_Alternative()
         {
             //Arrange
-            var employeeFactory = new EmployeeFactory();
 
             //Act
             var employee = (InternalEmployee)
-                employeeFactory.CreateEmployee("John", "Doe");
+                _employeeFactory.CreateEmployee("John", "Doe");
 
             //assert
             Assert.True(employee.Salary >= 2500);
@@ -61,14 +80,14 @@ namespace EmployeeManagement.Test
         /// Salary must be between 2500 and 3500 for internal employees (Alternative with InRange).
         /// </summary>
         [Fact]
+        [Trait("Category", "EmployeeFactory_CreateEmployee_Salary")]
         public void CreateEmployee_ConstructInternalEmployee_SalaryMustBeBetween2500And3500_AlternativeWithInRange()
         {
             //Arrange
-            var employeeFactory = new EmployeeFactory();
 
             //Act
             var employee = (InternalEmployee)
-                employeeFactory.CreateEmployee("John", "Doe");
+                _employeeFactory.CreateEmployee("John", "Doe");
 
             //assert
             Assert.InRange(employee.Salary, 2500, 3500);
@@ -78,14 +97,14 @@ namespace EmployeeManagement.Test
         /// Salary must be between 2500 and 3500 for internal employees (Alternative with InRange).
         /// </summary>
         [Fact]
+        [Trait("Category", "EmployeeFactory_CreateEmployee_Salary")]
         public void CreateEmployee_ConstructInternalEmployee_SalaryMustBe2500_PrecisionExample()
         {
             //Arrange
-            var employeeFactory = new EmployeeFactory();
 
             //Act
             var employee = (InternalEmployee)
-                employeeFactory.CreateEmployee("John", "Doe");
+                _employeeFactory.CreateEmployee("John", "Doe");
             employee.Salary = 2500.123m;
 
             //assert
@@ -96,13 +115,13 @@ namespace EmployeeManagement.Test
         /// If external employee is true, the return must be ExternalEmployee.
         /// </summary>
         [Fact]
+        [Trait("Category", "EmployeeFactory_CreateEmployee_ReturnType")]
         public void CreateEmployee_IsExternalIsTrue_ReturnMustBeExternalEmployee()
         {
             //Arrange
-            var factory = new EmployeeFactory();
 
             //Act
-            var employee = factory.CreateEmployee("John", "Doe", "Marvin", true);
+            var employee = _employeeFactory.CreateEmployee("John", "Doe", "Marvin", true);
 
             //assert
             Assert.IsType<ExternalEmployee>(employee);

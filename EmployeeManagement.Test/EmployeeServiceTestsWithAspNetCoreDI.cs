@@ -1,18 +1,14 @@
-﻿using EmployeeManagement.Business;
-using EmployeeManagement.Business.EventArguments;
+﻿using EmployeeManagement.Business.EventArguments;
 using EmployeeManagement.Business.Exceptions;
 using EmployeeManagement.DataAccess.Entities;
 using EmployeeManagement.Test.Fixtures;
-using EmployeeManagement.Test.Services;
-using Xunit.Abstractions;
 
 namespace EmployeeManagement.Test
 {
-    [Collection("EmployeeServiceCollection")]
-    public class EmployeeServiceTests //: IClassFixture<EmployeeServiceFixture>
+    public class EmployeeServiceTestsWithAspNetCoreDI 
+        : IClassFixture<EmployeeServiceWithAspNetCoreDIFixture>
     {
-        private readonly EmployeeServiceFixture _employeeServiceFixture;
-        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly EmployeeServiceWithAspNetCoreDIFixture _employeeServiceFixture;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmployeeServiceTests"/> class.
@@ -23,15 +19,10 @@ namespace EmployeeManagement.Test
         /// An instance of <see cref="EmployeeServiceFixture"/> that provides the necessary
         /// setup and dependencies for the tests.
         /// </param>
-        /// <param name="testOutputHelper">
-        /// An instance of <see cref="ITestOutputHelper"/> that provides the necessary
-        /// implementation for writing output to test results.
-        /// </param>
-        public EmployeeServiceTests(EmployeeServiceFixture employeeServiceFixture, 
-            ITestOutputHelper testOutputHelper)
+        public EmployeeServiceTestsWithAspNetCoreDI(
+            EmployeeServiceWithAspNetCoreDIFixture employeeServiceFixture)
         {
             _employeeServiceFixture = employeeServiceFixture;
-            _testOutputHelper = testOutputHelper;
         }
 
         /// <summary>
@@ -47,21 +38,12 @@ namespace EmployeeManagement.Test
                     .GetCourse(Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"));
 
             //Act
-            var internalEmployee = _employeeServiceFixture
+            var employee = _employeeServiceFixture
                 .EmployeeService
                 .CreateInternalEmployee("John", "Doe");
 
-            //Write output to test results
-            // The result will be displayed in the test explorer.
-            _testOutputHelper
-                .WriteLine($"Employee after Act: {internalEmployee.FirstName} {internalEmployee.LastName}");
-
-            internalEmployee
-                .AttendedCourses
-                .ForEach(c => _testOutputHelper.WriteLine($"Attended course: {c.Id} {c.Title}"));
-
             //Assert
-            Assert.Contains(obligatoryCourse, internalEmployee.AttendedCourses);
+            Assert.Contains(obligatoryCourse, employee.AttendedCourses);
         }
 
         /// <summary>
@@ -100,7 +82,7 @@ namespace EmployeeManagement.Test
                 .CreateInternalEmployee("John", "Doe");
 
             //Assert
-            Assert.Contains(employee.AttendedCourses, 
+            Assert.Contains(employee.AttendedCourses,
                 course => course.Id == Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"));
         }
 
@@ -202,24 +184,6 @@ namespace EmployeeManagement.Test
                     .GiveRaiseAsync(internalEmployee, 50));
         }
 
-        ///// <summary>
-        ///// Employee invalid raise exceptions must be thrown. (Mistake)
-        ///// This test is incorrect.
-        ///// </summary>
-        //[Fact]
-        //public void GiveRaise_RaiseBelowMinimumGiven_EmployeeInvalidRaiseExceptionsMustBeThrown_Mistake()
-        //{
-        //    //Arrange
-        //    var internalEmployee =
-        //        new InternalEmployee("John", "Doe", 5, 3000, false, 1);
-
-        //    //Act and Assert
-        //    Assert.ThrowsAsync<EmployeeInvalidRaiseException>(
-        //        async () => await _employeeServiceFixture
-        //            .EmployeeService
-        //            .GiveRaiseAsync(internalEmployee, 50));
-        //}
-
         /// <summary>
         /// Employee is absent must be triggered. (Asserting with Events)
         /// </summary>
@@ -231,13 +195,13 @@ namespace EmployeeManagement.Test
                 new InternalEmployee("John", "Doe", 5, 3000, false, 1);
 
             //Act and Assert
-             Assert.Raises<EmployeeIsAbsentEventArgs>(
-                handler => _employeeServiceFixture
-                    .EmployeeService.EmployeeIsAbsent += handler,
-                handler => _employeeServiceFixture
-                    .EmployeeService.EmployeeIsAbsent -= handler,
-                () => _employeeServiceFixture
-                    .EmployeeService.NotifyOfAbsence(internalEmployee));
+            Assert.Raises<EmployeeIsAbsentEventArgs>(
+               handler => _employeeServiceFixture
+                   .EmployeeService.EmployeeIsAbsent += handler,
+               handler => _employeeServiceFixture
+                   .EmployeeService.EmployeeIsAbsent -= handler,
+               () => _employeeServiceFixture
+                   .EmployeeService.NotifyOfAbsence(internalEmployee));
         }
     }
 }

@@ -91,5 +91,24 @@ namespace EmployeeManagement.Test
             //assert
             Assert.Equal(2500, employee.Salary, 0);
         }
+
+        /// <summary>
+        /// If external employee is true, the return must be ExternalEmployee.
+        /// </summary>
+        [Fact]
+        public void CreateEmployee_IsExternalIsTrue_ReturnMustBeExternalEmployee()
+        {
+            //Arrange
+            var factory = new EmployeeFactory();
+
+            //Act
+            var employee = factory.CreateEmployee("John", "Doe", "Marvin", true);
+
+            //assert
+            Assert.IsType<ExternalEmployee>(employee);
+
+            //Asset variation
+            //Assert.IsAssignableFrom<Employee>(employee);
+        }
     }
 }

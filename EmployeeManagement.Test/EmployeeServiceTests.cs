@@ -82,7 +82,7 @@ namespace EmployeeManagement.Test
                 .EmployeeService
                 .CreateInternalEmployee("John", "Doe");
 
-            //Assert
+            //Assert With Object
             Assert.Contains(obligatoryCourse, employee.AttendedCourses);
         }
 
@@ -99,7 +99,7 @@ namespace EmployeeManagement.Test
                 .EmployeeService
                 .CreateInternalEmployee("John", "Doe");
 
-            //Assert
+            //Assert With Predicate
             Assert.Contains(employee.AttendedCourses, 
                 course => course.Id == Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"));
         }
@@ -117,7 +117,7 @@ namespace EmployeeManagement.Test
                 .EmployeeService
                 .CreateInternalEmployee("John", "Doe");
 
-            //Assert
+            //Assert With Predicate
             Assert.Contains(employee.AttendedCourses,
                 course => course.Id == Guid.Parse("1fd115cf-f44c-4982-86bc-a8fe2e4ff83e"));
         }

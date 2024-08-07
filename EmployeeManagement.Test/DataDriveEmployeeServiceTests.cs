@@ -1,7 +1,6 @@
-﻿using EmployeeManagement.Business.EventArguments;
-using EmployeeManagement.Business.Exceptions;
-using EmployeeManagement.DataAccess.Entities;
+﻿using EmployeeManagement.DataAccess.Entities;
 using EmployeeManagement.Test.Fixtures;
+using EmployeeManagement.Test.TestData;
 
 namespace EmployeeManagement.Test
 {
@@ -25,53 +24,13 @@ namespace EmployeeManagement.Test
         }
 
         /// <summary>
-        /// Employee must have attended first obligatory course.
+        /// Employee must have attended First and Second obligatory course.
+        /// Theory with InlineData attribute.
         /// </summary>
-        [Fact]
-        public void CreateInternalEmployee_InternalEmployeeCreated_MustHaveAttendedFirstObligatoryCourse()
-        {
-            //Arrange
-            var obligatoryCourse =
-                _employeeServiceFixture
-                    .EmployeeManagementTestDataRepository
-                    .GetCourse(Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"));
-
-            //Act
-            var employee = _employeeServiceFixture
-                .EmployeeService
-                .CreateInternalEmployee("John", "Doe");
-
-            //Assert
-            Assert.Contains(obligatoryCourse, employee.AttendedCourses);
-        }
-
-        /// <summary>
-        /// Employee must have attended first obligatory course. (with Object)
-        /// </summary>
-        [Fact]
-        public void CreateInternalEmployee_InternalEmployeeCreated_MustHaveAttendedFirstObligatoryCourse_WithObject()
-        {
-            //Arrange
-
-            var obligatoryCourse =
-                _employeeServiceFixture
-                    .EmployeeManagementTestDataRepository
-                    .GetCourse(Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"));
-
-            //Act
-            var employee = _employeeServiceFixture
-                .EmployeeService
-                .CreateInternalEmployee("John", "Doe");
-
-            //Assert
-            Assert.Contains(obligatoryCourse, employee.AttendedCourses);
-        }
-
-        /// <summary>
-        /// Employee must have attended first obligatory course. (with Predicate)
-        /// </summary>
-        [Fact]
-        public void CreateInternalEmployee_InternalEmployeeCreated_MustHaveAttendedFirstObligatoryCourse_WithPredicate()
+        [Theory]
+        [InlineData("37e03ca7-c730-4351-834c-b66f280cdb01")]
+        [InlineData("1fd115cf-f44c-4982-86bc-a8fe2e4ff83e")]
+        public void CreateInternalEmployee_InternalEmployeeCreated_MustHaveAttendedFirstAndSecondObligatoryCourse(Guid courseId)
         {
             //Arrange
 
@@ -80,127 +39,231 @@ namespace EmployeeManagement.Test
                 .EmployeeService
                 .CreateInternalEmployee("John", "Doe");
 
-            //Assert
+            //Assert With Predicate
             Assert.Contains(employee.AttendedCourses,
-                course => course.Id == Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"));
+                course => course.Id == courseId);
         }
 
         /// <summary>
-        /// Employee must have attended Second obligatory course. (with Predicate)
+        /// Tests that the minimum raise given to an employee is correctly flagged as true.
         /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         [Fact]
-        public void CreateInternalEmployee_InternalEmployeeCreated_MustHaveAttendedSecondObligatoryCourse_WithPredicate()
+        public async Task GiveRaise_MinimumRaiseGiven_EmployeeMinimumRaiseGivenMustBeTrue()
         {
-            //Arrange
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
 
-            //Act
-            var employee = _employeeServiceFixture
-                .EmployeeService
-                .CreateInternalEmployee("John", "Doe");
+            // Act
+            await _employeeServiceFixture
+                .EmployeeService.GiveRaiseAsync(internalEmployee, 100);
 
-            //Assert
-            Assert.Contains(employee.AttendedCourses,
-                course => course.Id == Guid.Parse("1fd115cf-f44c-4982-86bc-a8fe2e4ff83e"));
+            // Assert
+            Assert.True(internalEmployee.MinimumRaiseGiven);
         }
 
         /// <summary>
-        /// Employee Attended Courses must match obligatory courses.
+        /// Tests that the minimum raise given to an employee is correctly flagged as false.
         /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         [Fact]
-        public void CreateInternalEmployee_InternalEmployeeCreated_AttendedCoursesMustMatchObligatoryCourses()
+        public async Task GiveRaise_MoreThanMinimumRaiseGiven_EmployeeMinimumRaiseGivenMustBeFalse()
         {
-            //Arrange
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
 
-            var obligatoryCourses =
-                _employeeServiceFixture
-                    .EmployeeManagementTestDataRepository.GetCourses(
-                    Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"),
-                    Guid.Parse("1fd115cf-f44c-4982-86bc-a8fe2e4ff83e"));
+            // Act 
+            await _employeeServiceFixture.EmployeeService
+                .GiveRaiseAsync(internalEmployee, 200);
 
-            //Act
-            var employee = _employeeServiceFixture
-                .EmployeeService
-                .CreateInternalEmployee("John", "Doe");
-
-            //Assert
-            Assert.Equal(obligatoryCourses, employee.AttendedCourses);
+            // Assert
+            Assert.False(internalEmployee.MinimumRaiseGiven);
         }
 
         /// <summary>
-        /// employee courses must not be new.
+        /// Example test data for GiveRaise with property.
         /// </summary>
-        [Fact]
-        public void CreateInternalEmployee_InternalEmployeeCreated_AttendedCoursesMustNotBeNew()
+        public static IEnumerable<object[]> ExampleTestDataForGiveRaiseWithProperty
         {
-            //Arrange
-
-            //Act
-            var employee = _employeeServiceFixture
-                .EmployeeService
-                .CreateInternalEmployee("John", "Doe");
-
-            //Assert
-            Assert.All(employee.AttendedCourses,
-                course => Assert.False(course.IsNew));
+            get
+            {
+                return new List<object[]>
+                {
+                    new object[] { 100, true },
+                    new object[] { 200, false }
+                };
+            }
         }
 
         /// <summary>
-        /// Employee Attended Courses must match obligatory courses. (Async)
+        /// Example test data for GiveRaise with Method.
         /// </summary>
-        [Fact]
-        public async Task CreateInternalEmployee_InternalEmployeeCreated_AttendedCoursesMustMatchObligatoryCourses_Async()
+        public static IEnumerable<object[]> ExampleTestDataForGiveRaiseWithMethod(int testDataInstancesToProvide)
         {
-            //Arrange
+            var testData = new List<object[]>
+            {
+                new object[] { 100, true },
+                new object[] { 200, false }
+            };
 
-            var obligatoryCourses = await _employeeServiceFixture
-                .EmployeeManagementTestDataRepository.GetCoursesAsync(
-                    Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"),
-                    Guid.Parse("1fd115cf-f44c-4982-86bc-a8fe2e4ff83e"));
-
-            //Act
-            var employee = await _employeeServiceFixture
-                .EmployeeService
-                .CreateInternalEmployeeAsync("John", "Doe");
-
-            //Assert
-            Assert.Equal(obligatoryCourses, employee.AttendedCourses);
+            return testData.Take(testDataInstancesToProvide);
         }
 
         /// <summary>
-        /// Employee invalid raise exceptions must be thrown.
+        /// Employee minimum raise given must match the expected value.
         /// </summary>
-        [Fact]
-        public async Task GiveRaise_RaiseBelowMinimumGiven_EmployeeInvalidRaiseExceptionsMustBeThrown()
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [Theory]
+        [MemberData(nameof(ExampleTestDataForGiveRaiseWithProperty))]
+        public async Task GiveRaise_RaiseGiven_EmployeeMinimumRaiseGivenMatchesValue
+            (int raiseGiven, bool expectedValueForMinimumRaiseGiven)
         {
-            //Arrange
-            var internalEmployee =
-                new InternalEmployee("John", "Doe", 5, 3000, false, 1);
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
 
-            //Act and Assert
-            await Assert.ThrowsAsync<EmployeeInvalidRaiseException>(
-                async () => await _employeeServiceFixture
-                    .EmployeeService
-                    .GiveRaiseAsync(internalEmployee, 50));
+            // Act
+            await _employeeServiceFixture
+                .EmployeeService.GiveRaiseAsync(internalEmployee, raiseGiven);
+
+            // Assert
+            Assert.Equal(expectedValueForMinimumRaiseGiven, 
+                internalEmployee.MinimumRaiseGiven);
         }
 
         /// <summary>
-        /// Employee is absent must be triggered. (Asserting with Events)
+        /// Employee minimum raise given must match the expected value.
+        /// This is an example how you can share test data between different test methods in
+        /// different test classes.
         /// </summary>
-        [Fact]
-        public void NotifyOfAbsence_EmployeeIsAbsent_OnEmployeeIsAbsentMustBeTriggered()
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [Theory]
+        [MemberData(nameof(DataDriveEmployeeServiceTests.ExampleTestDataForGiveRaiseWithMethod), 
+            1, 
+            MemberType = typeof(DataDriveEmployeeServiceTests))]
+        public async Task GiveRaise_RaiseGiven_EmployeeMinimumRaiseGivenMatchesValue_Shared
+            (int raiseGiven, bool expectedValueForMinimumRaiseGiven)
         {
-            //Arrange
-            var internalEmployee =
-                new InternalEmployee("John", "Doe", 5, 3000, false, 1);
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
 
-            //Act and Assert
-            Assert.Raises<EmployeeIsAbsentEventArgs>(
-               handler => _employeeServiceFixture
-                   .EmployeeService.EmployeeIsAbsent += handler,
-               handler => _employeeServiceFixture
-                   .EmployeeService.EmployeeIsAbsent -= handler,
-               () => _employeeServiceFixture
-                   .EmployeeService.NotifyOfAbsence(internalEmployee));
+            // Act
+            await _employeeServiceFixture
+                .EmployeeService.GiveRaiseAsync(internalEmployee, raiseGiven);
+
+            // Assert
+            Assert.Equal(expectedValueForMinimumRaiseGiven,
+                internalEmployee.MinimumRaiseGiven);
+        }
+
+        /// <summary>
+        /// Example test data for GiveRaise with property. (StronglyTyped)
+        /// </summary>
+        public static TheoryData<int, bool> StronglyTypedExampleTestDataForGiveRaiseWithProperty
+        {
+            get
+            {
+                return new TheoryData<int, bool>
+                {
+                    { 100, true },
+                    { 200, false }
+                };
+            }
+        }
+
+        /// <summary>
+        /// Employee minimum raise given must match the expected value.
+        /// This is an example how you can use strongly typed test data with TheoryData.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [Theory]
+        [MemberData(nameof(StronglyTypedExampleTestDataForGiveRaiseWithProperty))]
+        public async Task GiveRaise_RaiseGiven_EmployeeMinimumRaiseGivenMatchesValue_WithMemberData_UsingTheoryData
+            (int raiseGiven, bool expectedValueForMinimumRaiseGiven)
+        {
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
+
+            // Act
+            await _employeeServiceFixture
+                .EmployeeService.GiveRaiseAsync(internalEmployee, raiseGiven);
+
+            // Assert
+            Assert.Equal(expectedValueForMinimumRaiseGiven,
+                internalEmployee.MinimumRaiseGiven);
+        }
+
+        /// <summary>
+        /// Employee minimum raise given must match the expected value.
+        /// this method is an example of using a class data attribute to provide test data.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [Theory]
+        [ClassData(typeof(EmployeeServiceTestData))]
+        public async Task GiveRaise_RaiseGiven_EmployeeMinimumRaiseGivenMatchesValue_WithClassData
+            (int raiseGiven, bool expectedValueForMinimumRaiseGiven)
+        {
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
+
+            // Act
+            await _employeeServiceFixture
+                .EmployeeService.GiveRaiseAsync(internalEmployee, raiseGiven);
+
+            // Assert
+            Assert.Equal(expectedValueForMinimumRaiseGiven,
+                internalEmployee.MinimumRaiseGiven);
+        }
+
+        /// <summary>
+        /// Employee minimum raise given must match the expected value.
+        /// this method is an example of using a class data attribute to provide test data.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [Theory]
+        [ClassData(typeof(StronglyTypedEmployeeServiceTestData))]
+        public async Task GiveRaise_RaiseGiven_EmployeeMinimumRaiseGivenMatchesValue_WithTheoryData
+            (int raiseGiven, bool expectedValueForMinimumRaiseGiven)
+        {
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
+
+            // Act
+            await _employeeServiceFixture
+                .EmployeeService.GiveRaiseAsync(internalEmployee, raiseGiven);
+
+            // Assert
+            Assert.Equal(expectedValueForMinimumRaiseGiven,
+                internalEmployee.MinimumRaiseGiven);
+        }
+
+        /// <summary>
+        /// Employee minimum raise given must match the expected value.
+        /// This method is an example of using a class data attribute to provide test data from a file.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [Theory]
+        [ClassData(typeof(StronglyTypedEmployeeServiceTestDataFromFile))]
+        public async Task GiveRaise_RaiseGiven_EmployeeMinimumRaiseGivenMatchesValue_WithTheoryData_UsingDataFromFile
+            (int raiseGiven, bool expectedValueForMinimumRaiseGiven)
+        {
+            // Arrange  
+            var internalEmployee = new InternalEmployee(
+                "Brooklyn", "Cannon", 5, 3000, false, 1);
+
+            // Act
+            await _employeeServiceFixture
+                .EmployeeService.GiveRaiseAsync(internalEmployee, raiseGiven);
+
+            // Assert
+            Assert.Equal(expectedValueForMinimumRaiseGiven,
+                internalEmployee.MinimumRaiseGiven);
         }
     }
 }

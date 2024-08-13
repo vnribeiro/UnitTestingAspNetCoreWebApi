@@ -4,7 +4,6 @@ using EmployeeManagement.DataAccess.Entities;
 using EmployeeManagement.DataAccess.Services;
 using EmployeeManagement.Test.HttpMessageHandlers;
 using EmployeeManagement.Test.Services;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Sdk;

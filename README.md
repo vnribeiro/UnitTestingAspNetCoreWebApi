@@ -1,4 +1,6 @@
-# EmployeeManagement Solution
+# EmployeeManagement
+
+### The repository is an example of how you can implement unit tests using XUnit
 
 ## Overview
 

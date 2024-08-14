@@ -94,6 +94,12 @@ namespace EmployeeManagement.Test
 3. Open the Test Explorer (`Test` > `Test Explorer`).
 4. Run all tests to ensure everything is working correctly.
 
+## .NET, xUnit, and Moq Versions
+
+- **.NET Version**: .NET 6.0
+- **xUnit Version**: 2.4.1
+- **Moq Version**: 4.16.1
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more details.

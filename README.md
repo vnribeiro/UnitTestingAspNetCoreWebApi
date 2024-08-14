@@ -96,9 +96,9 @@ namespace EmployeeManagement.Test
 
 ## .NET, xUnit, and Moq Versions
 
-- **.NET Version**: .NET 6.0
-- **xUnit Version**: 2.4.1
-- **Moq Version**: 4.16.1
+- **.NET Version**: .NET 8.0
+- **xUnit Version**: 2.9.0
+- **Moq Version**: 4.20.70
 
 ## License
 

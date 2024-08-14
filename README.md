@@ -1,6 +1,6 @@
 # EmployeeManagement
 
-### The repository is an example of how you can implement unit tests using XUnit
+### This repository is an example of how you can implement unit tests using XUnit
 
 ## Overview
 
